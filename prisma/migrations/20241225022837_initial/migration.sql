@@ -2,6 +2,9 @@
 CREATE TABLE "Question" (
     "id" TEXT NOT NULL,
     "content" TEXT NOT NULL,
+    "answer" TEXT NOT NULL,
+    "answerTokenLength" INTEGER NOT NULL,
+    "hasEOS" BOOLEAN NOT NULL,
     "temperature" DOUBLE PRECISION NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
@@ -12,7 +15,6 @@ CREATE TABLE "Question" (
 CREATE TABLE "Vote" (
     "id" TEXT NOT NULL,
     "token" TEXT,
-    "isEOS" BOOLEAN,
     "tokenIndex" INTEGER NOT NULL,
     "isAccepted" BOOLEAN,
     "questionId" TEXT NOT NULL,

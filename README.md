@@ -1,3 +1,7 @@
+## 投票で次のトークンが決まる LLM 的な何か
+
+工事中
+
 # Welcome to React Router!
 
 A modern, production-ready template for building full-stack React applications using React Router.

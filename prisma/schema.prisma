@@ -14,17 +14,19 @@ datasource db {
 }
 
 model Question {
-  id          String   @id @default(uuid())
-  content     String
-  Vote        Vote[]
-  temperature Float
-  createdAt   DateTime @default(now())
+  id                String   @id @default(uuid())
+  content           String
+  answer            String
+  answerTokenLength Int
+  hasEOS            Boolean
+  Vote              Vote[]
+  temperature       Float
+  createdAt         DateTime @default(now())
 }
 
 model Vote {
   id         String   @id @default(uuid())
-  token      String?
-  isEOS      Boolean? // この投票がEOSのトークンかどうか
+  token      String? // nullはEOSトークン
   tokenIndex Int // クライアントが送信しようとするトークンのインデックス
   isAccepted Boolean? // この投票が受け入れられたかどうか
   questionId String

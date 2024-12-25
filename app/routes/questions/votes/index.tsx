@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Route } from "./+types/vote";
-import { prisma } from "~/db";
+import { createVote, prisma } from "~/db";
 
 const voteSchema = z.object({
   token: z.string().max(1, "Token must be a single character").optional(), // 最大1文字
@@ -18,15 +18,11 @@ export async function action({ request, params }: Route.ActionArgs) {
   if (request.method === "POST") {
     const formData = Object.fromEntries(await request.formData());
     const data = voteSchema.parse(formData);
-    const res = await prisma.vote.create({
-      data: {
-        token: data.token,
-        tokenIndex: data.tokenIndex,
-        questionId,
-        isEOS: data.isEOS,
-        isAccepted: false,
-      },
-    });
+    const res = await createVote(
+      questionId,
+      data.tokenIndex,
+      data.token ?? null
+    );
     return res;
   }
 }

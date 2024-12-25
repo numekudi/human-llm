@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Route } from "./+types/question";
-import { prisma } from "~/db";
+import { createQuestion } from "~/db";
 import { redirect } from "react-router";
 
 const questionSchema = z.object({
@@ -18,12 +18,7 @@ export async function action({ request }: Route.ActionArgs) {
   if (request.method === "POST") {
     const formData = Object.fromEntries(await request.formData());
     const data = questionSchema.parse(formData);
-    const res = await prisma.question.create({
-      data: {
-        content: data.content,
-        temperature: data.temperature,
-      },
-    });
+    const res = await createQuestion(data.content, data.temperature);
     return redirect(`/?questionId=${res.id}`);
   }
 }

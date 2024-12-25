@@ -5,15 +5,9 @@ import { MessageDisplay } from "./messageDisplay";
 
 type Props = {
   currentQuestion?: Question;
-  currentAnswer?: string;
-  tokenLength?: number;
 };
 
-const QuestionForm = ({
-  currentQuestion,
-  currentAnswer,
-  tokenLength,
-}: Props) => {
+const QuestionForm = ({ currentQuestion }: Props) => {
   const [temperature, setTemperature] = useState(
     currentQuestion?.temperature ?? 0.2
   );
@@ -44,7 +38,7 @@ const QuestionForm = ({
                     <input
                       type="hidden"
                       name="tokenIndex"
-                      value={tokenLength}
+                      value={currentQuestion.answerTokenLength + 1}
                     />
 
                     <MessageDisplay
@@ -52,7 +46,7 @@ const QuestionForm = ({
                       variant="user"
                     />
                     <MessageDisplay
-                      content={currentAnswer ?? ""}
+                      content={currentQuestion.answer}
                       variant="assistant"
                     />
                   </>
