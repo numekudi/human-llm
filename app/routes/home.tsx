@@ -2,6 +2,7 @@ import type { Route } from "./+types/home";
 import { Welcome } from "../welcome/welcome";
 import { prisma } from "~/db";
 import type { Question } from "@prisma/client";
+import { useSearchParams } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,5 +20,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {
-  return <Welcome questions={loaderData.questions} />;
+  const [params, _] = useSearchParams();
+  const questionId = params.get("questionId");
+  return <Welcome questions={loaderData.questions} key={questionId} />;
 }

@@ -1,7 +1,7 @@
 import { Form } from "react-router";
 import React, { useState } from "react";
 import type { Question } from "@prisma/client";
-import { MessageDisplay } from "./messageDisplay";
+import { MessageDisplay } from "../components/messageDisplay";
 
 type Props = {
   currentQuestion?: Question;

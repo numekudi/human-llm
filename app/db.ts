@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import type { TokenCounts } from "./routes/questions/votes/sse";
 
 export const prisma = new PrismaClient();
 
@@ -94,9 +95,62 @@ export const getAcceptedVote = async (
   });
 };
 
+export const selectRandomTokenWithTemperature = (
+  dists: number[], // トークンの出現頻度
+  temperature: number
+): number => {
+  // 出現頻度の合計を計算
+  const total = dists.reduce((sum, value) => sum + value, 0);
+
+  // 確率分布を計算
+  const probabilities = dists.map((value) => value / total);
+
+  // 温度を適用するヘルパー関数
+  const applyTemperature = (probability: number): number => {
+    if (temperature === 0) {
+      return probability === Math.max(...probabilities) ? 1 : 0;
+    }
+    return Math.pow(probability, 1 / temperature);
+  };
+
+  // 温度を適用した新しい分布を計算
+  const adjustedProbabilities = probabilities.map(applyTemperature);
+
+  // 正規化して合計を1にする
+  const adjustedTotal = adjustedProbabilities.reduce(
+    (sum, value) => sum + value,
+    0
+  );
+  const normalizedProbabilities = adjustedProbabilities.map(
+    (value) => value / adjustedTotal
+  );
+
+  // 累積確率を計算
+  const cumulativeProbabilities = normalizedProbabilities.reduce<number[]>(
+    (acc, value) => {
+      if (acc.length === 0) {
+        return [value];
+      }
+      return [...acc, acc[acc.length - 1] + value];
+    },
+    []
+  );
+
+  // ランダムな値を生成し、対応するインデックスを選択
+  const randomValue = Math.random();
+  for (let i = 0; i < cumulativeProbabilities.length; i++) {
+    if (randomValue < cumulativeProbabilities[i]) {
+      return i;
+    }
+  }
+
+  // フォールバック (理論上はここに到達しない)
+  return dists.length - 1;
+};
+
 export const acceptVote = async (
   questionId: string,
-  newToken: string | null
+  processingTokenIndex: number
 ) => {
   return await prisma.$transaction(async (tx) => {
     // 現在の値を取得
@@ -108,11 +162,43 @@ export const acceptVote = async (
       throw new Error(`Record with id ${questionId} not found`);
     }
 
+    const voteCounts = await tx.vote.groupBy({
+      by: ["token"], // tokenごとにグループ化
+      where: {
+        questionId: questionId,
+        tokenIndex: processingTokenIndex,
+      },
+      _count: {
+        token: true, // tokenの数をカウント
+      },
+    });
+    const dists = voteCounts.map((vote) => vote._count.token);
+    const tokenCounts = voteCounts.map((vote) => ({
+      token: vote.token ?? "",
+      count: vote._count.token,
+    }));
+    const counts: TokenCounts = {
+      type: "counts",
+      tokenFreq: tokenCounts,
+    };
+
+    if (
+      question.answerTokenLength === processingTokenIndex ||
+      tokenCounts.length === 0
+    ) {
+      // 処理済み
+      return { counts, newQuestion: question };
+    }
+
+    const index = selectRandomTokenWithTemperature(dists, question.temperature);
+
+    const newToken = tokenCounts[index].token;
+
     // 新しい値を計算
     const updatedValue = `${question.answer}${newToken ?? ""}`;
 
     // データを更新
-    const q = await tx.question.update({
+    const newQuestion = await tx.question.update({
       where: { id: questionId },
       data: {
         answer: updatedValue,
@@ -128,6 +214,6 @@ export const acceptVote = async (
         isAccepted: true,
       },
     });
-    return q;
+    return { newQuestion, counts };
   });
 };

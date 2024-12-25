@@ -1,10 +1,10 @@
 import type { Question } from "@prisma/client";
 import { useEffect, useState } from "react";
 import { useFetcher, useSearchParams } from "react-router";
-import CountDown from "~/components/counddown";
-import QuestionForm from "~/components/questionForm";
+import QuestionForm from "~/questionForm/questionForm";
 import { QuestionList } from "~/components/questionList";
-import type { EventData } from "~/routes/questions/votes/sse";
+import type { EventData, TokenCounts } from "~/routes/questions/votes/sse";
+import Graph from "~/graph/graph";
 
 type Props = {
   questions?: Question[];
@@ -14,6 +14,10 @@ export function Welcome({ questions }: Props) {
   const [params, _] = useSearchParams();
   const questionId = params.get("questionId");
   const [deadlineCount, setDeadlineCount] = useState<number>(0);
+  const [freq, setFreq] = useState<TokenCounts>({
+    tokenFreq: [],
+    type: "counts",
+  });
   const questionFetcher = useFetcher<Question>({ key: questionId || "" });
 
   useEffect(() => {
@@ -46,6 +50,7 @@ export function Welcome({ questions }: Props) {
         console.log(d);
 
         if (d.type === "counts") {
+          setFreq(d);
         } else if (d.type === "deadline") {
           setDeadlineCount(d.deadline);
         }
@@ -66,7 +71,7 @@ export function Welcome({ questions }: Props) {
           <QuestionForm
             currentQuestion={questionId ? questionFetcher.data : undefined}
             key={questionFetcher.data?.id}
-            glaphSlot={<CountDown value={deadlineCount} />}
+            glaphSlot={<Graph deadlineCount={deadlineCount} freq={freq} />}
           />
         </div>
       </div>
