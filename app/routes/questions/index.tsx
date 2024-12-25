@@ -1,0 +1,29 @@
+import { z } from "zod";
+import type { Route } from "./+types/question";
+import { prisma } from "~/db";
+import { redirect } from "react-router";
+
+const questionSchema = z.object({
+  id: z.number().int().nonnegative().optional(), // autoincrement, optional for creation
+  content: z.string().max(1024, "Content must be at most 1024 characters long"),
+  Vote: z.array(z.any()).optional(), // Assuming Vote validation is elsewhere
+  temperature: z.coerce
+    .number()
+    .min(0, "Temperature must be at least 0")
+    .max(2, "Temperature must be at most 2"),
+  createdAt: z.date().optional(), // Automatically handled by default in the model
+});
+
+export async function action({ request }: Route.ActionArgs) {
+  if (request.method === "POST") {
+    const formData = Object.fromEntries(await request.formData());
+    const data = questionSchema.parse(formData);
+    const res = await prisma.question.create({
+      data: {
+        content: data.content,
+        temperature: data.temperature,
+      },
+    });
+    return redirect(`/?questionId=${res.id}`);
+  }
+}
