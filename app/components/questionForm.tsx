@@ -1,13 +1,14 @@
 import { Form } from "react-router";
-import { useState } from "react";
+import React, { useState } from "react";
 import type { Question } from "@prisma/client";
 import { MessageDisplay } from "./messageDisplay";
 
 type Props = {
   currentQuestion?: Question;
+  glaphSlot?: React.ReactNode;
 };
 
-const QuestionForm = ({ currentQuestion }: Props) => {
+const QuestionForm = ({ currentQuestion, glaphSlot }: Props) => {
   const [temperature, setTemperature] = useState(
     currentQuestion?.temperature ?? 0.2
   );
@@ -40,7 +41,6 @@ const QuestionForm = ({ currentQuestion }: Props) => {
                       name="tokenIndex"
                       value={currentQuestion.answerTokenLength + 1}
                     />
-
                     <MessageDisplay
                       content={currentQuestion.content}
                       variant="user"
@@ -49,6 +49,7 @@ const QuestionForm = ({ currentQuestion }: Props) => {
                       content={currentQuestion.answer}
                       variant="assistant"
                     />
+                    {glaphSlot}
                   </>
                 )}
               </div>

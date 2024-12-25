@@ -6,9 +6,20 @@ import {
 } from "~/db";
 import type { Route } from "./+types/sse";
 
-export type TokenDelta = {
-  token: string | null;
+type Deadline = {
+  type: "deadline";
+  deadline: number;
 };
+
+type TokenCounts = {
+  type: "counts";
+  tokenFreq: {
+    token: string;
+    count: number;
+  }[];
+};
+
+export type EventData = Deadline | TokenCounts;
 
 export const selectRandomTokenWithTemperature = (
   dists: number[], // トークンの出現頻度
@@ -74,67 +85,68 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
 
   const stream = new ReadableStream({
     start(controller) {
-      const now = new Date();
-      const seconds = now.getSeconds();
-      const milliseconds = 1000 - now.getMilliseconds();
-      console.log(seconds);
-      console.log(milliseconds);
+      const proc = async () => {
+        const question = await getQuestionById(questionId);
+        if (!question) {
+          return new Response("Question not found", { status: 404 });
+        }
 
-      let count = 10 - (seconds % 10);
-      console.log(count);
+        const temperature = question.temperature;
 
-      setTimeout(() => {
-        const interval = setInterval(async () => {
-          if (count != 0) {
-            controller.enqueue(
-              `data: ${JSON.stringify({ deadline: count })}\n\n`
-            );
-            count -= 1;
-            return;
-          }
-          count = 10;
-          const question = await getQuestionById(questionId);
-          if (!question) {
-            return new Response("Question not found", { status: 404 });
-          }
+        // voteCounts の取得
+        const voteCounts = await aggregateVotes(
+          questionId,
+          question.answerTokenLength + 1
+        );
+        if (voteCounts.length === 0) {
+          return;
+        }
+        // 頻度を取得
+        const dists = voteCounts.map((vote) => vote._count.token);
 
-          if (processedTokenIndex !== question.answerTokenLength) {
-            controller.enqueue(
-              `data: ${JSON.stringify({ answer: question.answer })}\n\n`
-            );
-            processedTokenIndex = question.answerTokenLength;
-            return;
-          }
+        const tokenCounts = voteCounts.map((vote) => ({
+          token: vote.token ?? "",
+          count: vote._count.token,
+        }));
+        const counts: TokenCounts = {
+          type: "counts",
+          tokenFreq: tokenCounts,
+        };
+        if (processedTokenIndex !== question.answerTokenLength) {
+          controller.enqueue(`data: ${JSON.stringify(counts)}\n\n`);
+          processedTokenIndex = question.answerTokenLength;
+          return;
+        }
 
-          const temperature = question.temperature;
+        const index = selectRandomTokenWithTemperature(dists, temperature);
+        const newQ = await acceptVote(
+          questionId,
+          voteCounts[index].token ?? null
+        );
 
-          // voteCounts の取得
-          const voteCounts = await aggregateVotes(
-            questionId,
-            question.answerTokenLength + 1
-          );
-          if (voteCounts.length === 0) {
-            return;
-          }
-          // 頻度を取得
-          const dists = voteCounts.map((vote) => vote._count.token);
-
-          const index = selectRandomTokenWithTemperature(dists, temperature);
-          const newQ = await acceptVote(
-            questionId,
-            voteCounts[index].token ?? null
-          );
-
-          controller.enqueue(
-            `data: ${JSON.stringify({ answer: newQ.answer })}\n\n`
-          );
-          processedTokenIndex = newQ.answerTokenLength;
-        }, 1000);
+        controller.enqueue(`data: ${JSON.stringify(counts)}\n\n`);
+        processedTokenIndex = newQ.answerTokenLength;
         request.signal.addEventListener("abort", () => {
-          clearInterval(interval);
           controller.close();
         });
-      }, milliseconds);
+      };
+      const setup = async () => {
+        const now = new Date();
+        // 次の10の倍数秒
+        const nextDeadlineTime = Math.ceil(now.getTime() / 10000) * 10000;
+        const deadline = nextDeadlineTime - now.getTime();
+        const deadlineEvent: Deadline = {
+          type: "deadline",
+          deadline: deadline,
+        };
+        controller.enqueue(`data: ${JSON.stringify(deadlineEvent)}\n\n`);
+
+        setTimeout(() => {
+          proc();
+          setup();
+        }, deadline);
+      };
+      setup();
     },
   });
 

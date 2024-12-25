@@ -11,7 +11,9 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  const questions: Question[] = await prisma.question.findMany();
+  const questions: Question[] = await prisma.question.findMany({
+    take: 20,
+  });
 
   return { questions };
 }
