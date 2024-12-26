@@ -32,13 +32,11 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
   let isClosed = false;
 
   request.signal.addEventListener("abort", () => {
-    console.log("closing...");
     isClosed = true;
   });
 
   const stream = new ReadableStream({
     start(controller) {
-      console.log("start");
       const proc = async () => {
         const question = await getQuestionById(questionId);
         if (!question) {
@@ -48,7 +46,6 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
         processingTokenIndex = question.answerTokenLength + 1;
 
         const ret = await acceptVote(questionId, processingTokenIndex);
-        console.log(!!ret);
         if (ret) {
           const newQ = ret.newQuestion;
           const counts = ret.counts;
@@ -70,7 +67,6 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
         controller.enqueue(`data: ${JSON.stringify(deadlineEvent)}\n\n`);
 
         const id = setTimeout(async () => {
-          console.log(isClosed);
           if (isClosed) {
             clearTimeout(id);
             controller.close();

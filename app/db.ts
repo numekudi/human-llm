@@ -201,7 +201,6 @@ export const acceptVote = async (
     const updatedValue = `${question.answer}${newToken ?? ""}`;
 
     // データを更新
-    console.log(newToken === "");
     const newQuestion = await tx.question.update({
       where: { id: questionId },
       data: {

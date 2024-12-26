@@ -94,6 +94,7 @@ const QuestionForm = ({ currentQuestion, glaphSlot }: Props) => {
                             content ? "bg-gray-200" : "bg-red-400"
                           } ${content && "hover:bg-indigo-700"}`}
                           disabled={voted}
+                          tabIndex={content ? -1 : undefined}
                         >
                           EOS
                         </button>

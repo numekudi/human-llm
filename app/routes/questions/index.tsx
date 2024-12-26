@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Route } from "./+types/question";
-import { createQuestion } from "~/db";
+import { createQuestion, prisma } from "~/db";
 import { redirect } from "react-router";
 
 const questionSchema = z.object({
@@ -21,4 +21,25 @@ export async function action({ request }: Route.ActionArgs) {
     const res = await createQuestion(data.content, data.temperature);
     return redirect(`/?questionId=${res.id}`);
   }
+}
+
+export async function loader({ request }: Route.LoaderArgs) {
+  console.log(request.url);
+  const url = new URL(request.url);
+  const cursor = url.searchParams.get("cursor");
+  const take = 23;
+  const questions = await prisma.question.findMany({
+    take,
+    skip: cursor ? 1 : 0, // 最初のアイテムをスキップ（カーソルの重複を防ぐ）
+    cursor: cursor ? { id: cursor } : undefined,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return {
+    questions,
+    nextCursor:
+      questions.length === take ? questions[questions.length - 1].id : null, // 次のカーソル
+  };
 }

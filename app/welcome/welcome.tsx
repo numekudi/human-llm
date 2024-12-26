@@ -7,11 +7,12 @@ import type { EventData, TokenCounts } from "~/routes/questions/votes/sse";
 import Graph from "~/graph/graph";
 
 type Props = {
-  questions?: Question[];
+  questions: Question[];
+  nextCursor: string | null;
   questionId?: string;
 };
 
-export function Welcome({ questions, questionId }: Props) {
+export function Welcome({ questions, questionId, nextCursor }: Props) {
   const [deadlineCount, setDeadlineCount] = useState<number>(0);
   const [freq, setFreq] = useState<TokenCounts>({
     tokenFreq: [],
@@ -30,7 +31,6 @@ export function Welcome({ questions, questionId }: Props) {
   }, []);
 
   useEffect(() => {
-    console.log("open");
     let source: EventSource | null = null;
     if (!questionId) {
       return;
@@ -39,12 +39,10 @@ export function Welcome({ questions, questionId }: Props) {
 
     source = new EventSource(`/questions/${questionId}/votes/sse`);
     source.onmessage = (event) => {
-      console.log("emitted");
       questionFetcher.load("/questions/" + questionId, {
         flushSync: true,
       });
       const d = JSON.parse(event.data) as EventData;
-      console.log(d);
 
       if (d.type === "counts") {
         setFreq(d);
@@ -53,9 +51,7 @@ export function Welcome({ questions, questionId }: Props) {
       }
     };
     return () => {
-      console.log(source);
       source?.close();
-      console.log("closed");
     };
   }, [questionId]);
 
@@ -63,7 +59,7 @@ export function Welcome({ questions, questionId }: Props) {
     <main>
       <div className="flex h-screen text-gray-800">
         <div>
-          <QuestionList questions={questions} />
+          <QuestionList initialQuestions={questions} firstCursor={nextCursor} />
         </div>
         <div className="flex-1">
           <QuestionForm
