@@ -22,5 +22,11 @@ export async function loader({ request }: Route.LoaderArgs) {
 export default function Home({ loaderData }: Route.ComponentProps) {
   const [params, _] = useSearchParams();
   const questionId = params.get("questionId");
-  return <Welcome questions={loaderData.questions} key={questionId} />;
+  return (
+    <Welcome
+      questions={loaderData.questions}
+      questionId={questionId ?? undefined}
+      key={questionId}
+    />
+  );
 }

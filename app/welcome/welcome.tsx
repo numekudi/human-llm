@@ -8,11 +8,10 @@ import Graph from "~/graph/graph";
 
 type Props = {
   questions?: Question[];
+  questionId?: string;
 };
 
-export function Welcome({ questions }: Props) {
-  const [params, _] = useSearchParams();
-  const questionId = params.get("questionId");
+export function Welcome({ questions, questionId }: Props) {
   const [deadlineCount, setDeadlineCount] = useState<number>(0);
   const [freq, setFreq] = useState<TokenCounts>({
     tokenFreq: [],
@@ -31,33 +30,32 @@ export function Welcome({ questions }: Props) {
   }, []);
 
   useEffect(() => {
+    console.log("open");
     let source: EventSource | null = null;
     if (!questionId) {
       return;
     }
-    if (questionId) {
-      questionFetcher.load("/questions/" + questionId);
-    }
+    questionFetcher.load("/questions/" + questionId);
 
-    if (!questionFetcher.data) {
-      source = new EventSource(`/questions/${questionId}/votes/sse`);
-      source.onmessage = (event) => {
-        console.log("emitted");
-        questionFetcher.load("/questions/" + questionId, {
-          flushSync: true,
-        });
-        const d = JSON.parse(event.data) as EventData;
-        console.log(d);
+    source = new EventSource(`/questions/${questionId}/votes/sse`);
+    source.onmessage = (event) => {
+      console.log("emitted");
+      questionFetcher.load("/questions/" + questionId, {
+        flushSync: true,
+      });
+      const d = JSON.parse(event.data) as EventData;
+      console.log(d);
 
-        if (d.type === "counts") {
-          setFreq(d);
-        } else if (d.type === "deadline") {
-          setDeadlineCount(d.deadline);
-        }
-      };
-    }
+      if (d.type === "counts") {
+        setFreq(d);
+      } else if (d.type === "deadline") {
+        setDeadlineCount(d.deadline);
+      }
+    };
     return () => {
+      console.log(source);
       source?.close();
+      console.log("closed");
     };
   }, [questionId]);
 

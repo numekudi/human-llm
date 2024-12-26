@@ -161,6 +161,9 @@ export const acceptVote = async (
     if (!question) {
       throw new Error(`Record with id ${questionId} not found`);
     }
+    if (question.hasEOS) {
+      return;
+    }
 
     const voteCounts = await tx.vote.groupBy({
       by: ["token"], // tokenごとにグループ化
@@ -198,12 +201,13 @@ export const acceptVote = async (
     const updatedValue = `${question.answer}${newToken ?? ""}`;
 
     // データを更新
+    console.log(newToken === "");
     const newQuestion = await tx.question.update({
       where: { id: questionId },
       data: {
         answer: updatedValue,
         answerTokenLength: question.answerTokenLength + 1,
-        hasEOS: newToken === null,
+        hasEOS: newToken === "",
       },
     });
     await tx.vote.updateMany({

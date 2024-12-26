@@ -29,46 +29,35 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
   }
 
   let processingTokenIndex: number | null = null;
+  let isClosed = false;
+
+  request.signal.addEventListener("abort", () => {
+    console.log("closing...");
+    isClosed = true;
+  });
 
   const stream = new ReadableStream({
     start(controller) {
+      console.log("start");
       const proc = async () => {
         const question = await getQuestionById(questionId);
         if (!question) {
           return new Response("Question not found", { status: 404 });
         }
+
         processingTokenIndex = question.answerTokenLength + 1;
 
-        // const voteCounts = await aggregateVotes(
-        //   questionId,
-        //   question.answerTokenLength + 1
-        // );
-        // if (voteCounts.length === 0) {
-        //   return;
-        // }
-        // const dists = voteCounts.map((vote) => vote._count.token);
-
-        // const tokenCounts = voteCounts.map((vote) => ({
-        //   token: vote.token ?? "",
-        //   count: vote._count.token,
-        // }));
-
-        // const counts: TokenCounts = {
-        //   type: "counts",
-        //   tokenFreq: tokenCounts,
-        // };
-
-        // const index = selectRandomTokenWithTemperature(dists, temperature);
         const ret = await acceptVote(questionId, processingTokenIndex);
-        const newQ = ret.newQuestion;
-        const counts = ret.counts;
+        console.log(!!ret);
+        if (ret) {
+          const newQ = ret.newQuestion;
+          const counts = ret.counts;
 
-        controller.enqueue(`data: ${JSON.stringify(counts)}\n\n`);
-        processingTokenIndex = newQ.answerTokenLength;
-        request.signal.addEventListener("abort", () => {
-          controller.close();
-        });
+          controller.enqueue(`data: ${JSON.stringify(counts)}\n\n`);
+          processingTokenIndex = newQ.answerTokenLength;
+        }
       };
+
       const setup = async () => {
         const now = new Date();
         // 次の10の倍数秒
@@ -80,9 +69,15 @@ export async function loader({ request, params, context }: Route.LoaderArgs) {
         };
         controller.enqueue(`data: ${JSON.stringify(deadlineEvent)}\n\n`);
 
-        setTimeout(() => {
-          proc();
-          setup();
+        const id = setTimeout(async () => {
+          console.log(isClosed);
+          if (isClosed) {
+            clearTimeout(id);
+            controller.close();
+            return;
+          }
+          await proc();
+          await setup();
         }, deadline);
       };
       setup();

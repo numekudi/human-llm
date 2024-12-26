@@ -18,7 +18,9 @@ const BarChart = ({ data }: Props) => {
 
           return (
             <div key={token} className="flex items-center mb-3">
-              <span className="w-24 font-bold">{token}</span>
+              <span className="w-24 font-bold">
+                {token === "" ? "EOS" : token}
+              </span>
               <div
                 className="bg-blue-500 h-5 mr-3"
                 style={{ width: `${percentage}%` }}
