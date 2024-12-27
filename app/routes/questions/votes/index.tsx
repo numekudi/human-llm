@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Route } from "./+types/vote";
-import { createVote, prisma } from "~/db";
+import { createVote } from "~/repository";
 
 const voteSchema = z.object({
   token: z.string().max(1, "Token must be a single character").optional(), // 最大1文字

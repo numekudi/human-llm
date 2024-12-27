@@ -1,4 +1,4 @@
-import type { TokenCounts } from "~/routes/questions/votes/sse";
+import type { TokenCounts } from "~/routes/questions/votes/types";
 
 type Props = {
   data: TokenCounts;
@@ -29,6 +29,9 @@ const BarChart = ({ data }: Props) => {
             </div>
           );
         })}
+        {sortedTokenFreq.length === 0 && (
+          <div className="text-center">No data</div>
+        )}
       </div>
     </div>
   );

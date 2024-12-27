@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { selectRandomTokenWithTemperature } from "~/db";
+import { selectRandomTokenWithTemperature } from "~/repository";
 
 describe("temperature", () => {
   it("random test", () => {

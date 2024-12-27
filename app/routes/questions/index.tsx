@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { Route } from "./+types/question";
-import { createQuestion, prisma } from "~/db";
+import { createQuestion, prisma } from "~/repository";
 import { redirect } from "react-router";
 
 const questionSchema = z.object({

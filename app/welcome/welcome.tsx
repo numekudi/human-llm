@@ -1,10 +1,10 @@
 import type { Question } from "@prisma/client";
 import { useEffect, useState } from "react";
-import { useFetcher, useSearchParams } from "react-router";
+import { useFetcher } from "react-router";
 import QuestionForm from "~/questionForm/questionForm";
 import { QuestionList } from "~/components/questionList";
-import type { EventData, TokenCounts } from "~/routes/questions/votes/sse";
 import Graph from "~/graph/graph";
+import type { EventData, TokenCounts } from "~/routes/questions/votes/types";
 
 type Props = {
   questions: Question[];
@@ -65,6 +65,7 @@ export function Welcome({ questions, questionId, nextCursor }: Props) {
           <QuestionForm
             currentQuestion={questionId ? questionFetcher.data : undefined}
             key={questionFetcher.data?.id}
+            questionId={questionId}
             glaphSlot={<Graph deadlineCount={deadlineCount} freq={freq} />}
           />
         </div>

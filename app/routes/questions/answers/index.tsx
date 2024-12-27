@@ -1,4 +1,4 @@
-import { getSortedTokensString, prisma } from "~/db";
+import { getSortedTokensString } from "~/repository";
 import type { Route } from "../+types";
 
 export async function loader({ params }: Route.LoaderArgs) {

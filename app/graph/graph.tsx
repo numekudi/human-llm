@@ -1,6 +1,6 @@
 import BarChart from "~/components/barChart";
 import CountDown from "~/components/counddown";
-import type { TokenCounts } from "~/routes/questions/votes/sse";
+import type { TokenCounts } from "~/routes/questions/votes/types";
 
 type Props = {
   deadlineCount: number;

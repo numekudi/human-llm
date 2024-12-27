@@ -1,5 +1,5 @@
 import { PrismaClient } from "@prisma/client";
-import type { TokenCounts } from "./routes/questions/votes/sse";
+import type { TokenCounts } from "./routes/questions/votes/types";
 
 export const prisma = new PrismaClient();
 
@@ -43,6 +43,23 @@ export const createQuestion = async (content: string, temperature: number) => {
     },
   });
   return res;
+};
+
+export const getQuestions = async (cursor: string | null) => {
+  const take = 10;
+  const questions = await prisma.question.findMany({
+    take,
+    skip: cursor ? 1 : 0, // 最初のアイテムをスキップ（カーソルの重複を防ぐ）
+    cursor: cursor ? { id: cursor } : undefined,
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  return {
+    questions,
+    nextCursor:
+      questions.length === take ? questions[questions.length - 1].id : null, // 次のカーソル
+  };
 };
 
 export const createVote = async (
@@ -205,8 +222,11 @@ export const acceptVote = async (
       where: { id: questionId },
       data: {
         answer: updatedValue,
-        answerTokenLength: question.answerTokenLength + 1,
-        hasEOS: newToken === "",
+        answerTokenLength:
+          question.answerTokenLength +
+          1 +
+          (question.answerTokenLength + 1 >= 1024 ? 1 : 0),
+        hasEOS: newToken === "" || question.answerTokenLength + 1 >= 1024,
       },
     });
     await tx.vote.updateMany({

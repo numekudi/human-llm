@@ -5,10 +5,11 @@ import { MessageDisplay } from "../components/messageDisplay";
 
 type Props = {
   currentQuestion?: Question;
+  questionId?: string;
   glaphSlot?: React.ReactNode;
 };
 
-const QuestionForm = ({ currentQuestion, glaphSlot }: Props) => {
+const QuestionForm = ({ currentQuestion, glaphSlot, questionId }: Props) => {
   const [temperature, setTemperature] = useState(
     currentQuestion?.temperature ?? 0.2
   );
@@ -41,6 +42,48 @@ const QuestionForm = ({ currentQuestion, glaphSlot }: Props) => {
           <div className="flex flex-1 overflow-auto w-full h-full">
             <div className="flex flex-col flex-1 w-full h-full">
               <div className="flex-1 w-full">
+                {!questionId && (
+                  <div className="flex flex-col justify-center h-full">
+                    <div className="bg-white text-black p-8 max-w-4xl mx-auto rounded-lg shadow-lg">
+                      <h1 className="text-4xl font-bold mb-4 text-center">
+                        Little Letter Mind 🧠
+                      </h1>
+                      <p className="text-xl mb-6 text-center text-gray-600">
+                        0.1 token per second.
+                        答えは一文字ずつ、みんなの力で作り上げる。 ✍️
+                      </p>
+
+                      <div className="space-y-6">
+                        <div className="flex items-center space-x-4">
+                          <span className="text-2xl font-semibold text-gray-800">
+                            ⏱️ 1文字につき10秒
+                          </span>
+                          <p className="text-gray-600">
+                            10秒ごとに一文字決定されます ⏳
+                          </p>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <span className="text-2xl font-semibold text-gray-800">
+                            🔀 ランダム性調整
+                          </span>
+                          <p className="text-gray-600">
+                            「温度」を調整して、ランダムさをコントロール！🌡️
+                          </p>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                          <span className="text-2xl font-semibold text-gray-800">
+                            ⚠️ 注意事項
+                          </span>
+                          <p className="text-gray-600">
+                            入力内容は誰でも見れます。個人情報は入力しないでください🔒
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 {currentQuestion && (
                   <>
                     <input
@@ -56,7 +99,13 @@ const QuestionForm = ({ currentQuestion, glaphSlot }: Props) => {
                       content={currentQuestion.answer}
                       variant="assistant"
                     />
+                    <p className="pr-4 text-end text-gray-500">{`${
+                      1024 - currentQuestion.answerTokenLength
+                    }/1024`}</p>
                     {!currentQuestion.hasEOS && glaphSlot}
+                    {currentQuestion.hasEOS && (
+                      <div className="text-center">EOS token found.</div>
+                    )}
                   </>
                 )}
               </div>
@@ -77,7 +126,7 @@ const QuestionForm = ({ currentQuestion, glaphSlot }: Props) => {
                         placeholder={
                           currentQuestion
                             ? "Enter ASSISTANT token..."
-                            : "Enter USER message..."
+                            : "Enter USER message... do not enter personal information."
                         }
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
@@ -92,8 +141,8 @@ const QuestionForm = ({ currentQuestion, glaphSlot }: Props) => {
                           type="submit"
                           className={`mt-2 inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white disabled:bg-gray-200 ${
                             content ? "bg-gray-200" : "bg-red-400"
-                          } ${content && "hover:bg-indigo-700"}`}
-                          disabled={voted}
+                          }`}
+                          disabled={Boolean(voted || content)}
                           tabIndex={content ? -1 : undefined}
                         >
                           EOS

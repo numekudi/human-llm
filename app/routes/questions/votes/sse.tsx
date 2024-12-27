@@ -1,25 +1,6 @@
-import {
-  acceptVote,
-  aggregateVotes,
-  getAcceptedVote,
-  getQuestionById,
-} from "~/db";
+import { acceptVote, getQuestionById } from "~/repository";
 import type { Route } from "./+types/sse";
-
-type Deadline = {
-  type: "deadline";
-  deadline: number;
-};
-
-export type TokenCounts = {
-  type: "counts";
-  tokenFreq: {
-    token: string;
-    count: number;
-  }[];
-};
-
-export type EventData = Deadline | TokenCounts;
+import type { Deadline } from "./types";
 
 // loader の中で SSE を構築
 export async function loader({ request, params, context }: Route.LoaderArgs) {
