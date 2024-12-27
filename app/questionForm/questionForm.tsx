@@ -39,44 +39,44 @@ const QuestionForm = ({ currentQuestion, glaphSlot, questionId }: Props) => {
             setVoted(true);
           }}
         >
-          <div className="flex flex-1 overflow-auto w-full h-full">
+          <div className="flex flex-col md:flex-row flex-1 overflow-auto w-full h-full">
             <div className="flex flex-col flex-1 w-full h-full">
               <div className="flex-1 w-full">
                 {!questionId && (
                   <div className="flex flex-col justify-center h-full">
                     <div className="bg-white text-black p-8 max-w-4xl mx-auto rounded-lg shadow-lg">
-                      <h1 className="text-4xl font-bold mb-4 text-center">
+                      <h1 className="text-2xl md:text-4xl font-bold mb-4 text-center">
                         Little Letter Mind 🧠
                       </h1>
-                      <p className="text-xl mb-6 text-center text-gray-600">
+                      <p className="text-lg md:text-xl mb-6 text-center text-gray-600">
                         0.1 token per second.
                         答えは一文字ずつ、みんなの力で作り上げる。 ✍️
                       </p>
 
                       <div className="space-y-6">
                         <div className="flex items-center space-x-4">
-                          <span className="text-2xl font-semibold text-gray-800">
-                            ⏱️ 1文字につき10秒
+                          <span className="font-semibold text-gray-800">
+                            ⏱️
                           </span>
-                          <p className="text-gray-600">
+                          <p className="text-gray-900">
                             10秒ごとに一文字決定されます ⏳
                           </p>
                         </div>
 
                         <div className="flex items-center space-x-4">
-                          <span className="text-2xl font-semibold text-gray-800">
-                            🔀 ランダム性調整
+                          <span className="font-semibold text-gray-800">
+                            🔀
                           </span>
-                          <p className="text-gray-600">
+                          <p className="text-gray-900">
                             「温度」を調整して、ランダムさをコントロール！🌡️
                           </p>
                         </div>
 
                         <div className="flex items-center space-x-4">
-                          <span className="text-2xl font-semibold text-gray-800">
-                            ⚠️ 注意事項
+                          <span className="font-semibold text-gray-800">
+                            ⚠️
                           </span>
-                          <p className="text-gray-600">
+                          <p className="text-gray-900">
                             入力内容は誰でも見れます。個人情報は入力しないでください🔒
                           </p>
                         </div>
@@ -162,7 +162,7 @@ const QuestionForm = ({ currentQuestion, glaphSlot, questionId }: Props) => {
                 )}
               </div>
             </div>
-            <div className="w-64 p-4 border-l right-0 bg-gray-100">
+            <div className="w-full md:w-64 p-4 border-l right-0 bg-gray-100">
               <div className="mb-6 flex flex-col space-y-4">
                 <div>
                   <label className="flex justify-between text-sm font-medium text-gray-700">
