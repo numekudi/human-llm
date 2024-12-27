@@ -16,7 +16,7 @@ type Props = {
 export function QuestionList({ initialQuestions, firstCursor }: Props) {
   const [questions, setQuestions] = useState(initialQuestions);
   const [nextCursor, setNextCursor] = useState<string | null>(firstCursor);
-  const [isPanelOpen, setIsPanelOpen] = useState(false); // パネルの開閉状態を管理
+  const [isPanelOpen, setIsPanelOpen] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -56,7 +56,6 @@ export function QuestionList({ initialQuestions, firstCursor }: Props) {
 
   return (
     <>
-      {/* モバイル用トリガーボタン */}
       {!isPanelOpen && (
         <button
           className="fixed top-4 z-50 p-2  md:hidden border"
@@ -65,7 +64,6 @@ export function QuestionList({ initialQuestions, firstCursor }: Props) {
           <IoChevronForwardSharp />
         </button>
       )}
-      {/* サイドパネル */}
       <div
         className={`fixed top-0 left-0 z-40 h-full w-64 bg-gray-100 ${
           isPanelOpen ? "translate-x-0" : "-translate-x-full"
@@ -76,7 +74,13 @@ export function QuestionList({ initialQuestions, firstCursor }: Props) {
             <div className="font-bold text-2xl">Questions</div>
             <div className="flex space-x-2">
               <button
-                onClick={() => navigate(location.pathname + location.search)}
+                onClick={() => {
+                  navigate(location.pathname + location.search, {
+                    replace: true,
+                  });
+                  setQuestions(initialQuestions);
+                  setNextCursor(firstCursor);
+                }}
               >
                 <IoReload size={28} />
               </button>
