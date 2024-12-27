@@ -5,8 +5,8 @@ import { getQuestions } from "~/repository";
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "Little Letter Mind" },
+    { name: "description", content: "LLMの気持ちになれるwebアプリ" },
   ];
 }
 
