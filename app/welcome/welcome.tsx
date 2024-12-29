@@ -39,15 +39,19 @@ export function Welcome({ questions, questionId, nextCursor }: Props) {
 
     source = new EventSource(`/questions/${questionId}/votes/sse`);
     source.onmessage = (event) => {
-      questionFetcher.load("/questions/" + questionId, {
-        flushSync: true,
-      });
-      const d = JSON.parse(event.data) as EventData;
+      try {
+        questionFetcher.load("/questions/" + questionId, {
+          flushSync: true,
+        });
+        const d = JSON.parse(event.data) as EventData;
 
-      if (d.type === "counts") {
-        setFreq(d);
-      } else if (d.type === "deadline") {
-        setDeadlineCount(d.deadline);
+        if (d.type === "counts") {
+          setFreq(d);
+        } else if (d.type === "deadline") {
+          setDeadlineCount(d.deadline);
+        }
+      } catch (e) {
+        console.warn(e);
       }
     };
     return () => {
