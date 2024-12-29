@@ -45,7 +45,7 @@ export const getSortedTokensString = createRetryFunction(
 
     return { tokenLength: votes.length, tokensString };
   },
-  3
+  5
 );
 
 export const getQuestionById = createRetryFunction(
@@ -56,7 +56,7 @@ export const getQuestionById = createRetryFunction(
       },
     });
   },
-  3
+  5
 );
 
 export const createQuestion = createRetryFunction(
@@ -72,7 +72,7 @@ export const createQuestion = createRetryFunction(
     });
     return res;
   },
-  3
+  5
 );
 
 export const getQuestions = createRetryFunction(
@@ -92,7 +92,7 @@ export const getQuestions = createRetryFunction(
         questions.length === take ? questions[questions.length - 1].id : null, // 次のカーソル
     };
   },
-  3
+  5
 );
 
 export const createVote = createRetryFunction(
@@ -107,7 +107,7 @@ export const createVote = createRetryFunction(
     });
     return res;
   },
-  3
+  5
 );
 
 export const aggregateVotes = createRetryFunction(
@@ -125,7 +125,7 @@ export const aggregateVotes = createRetryFunction(
 
     return voteCounts;
   },
-  3
+  5
 );
 
 export const getAcceptedVote = createRetryFunction(
@@ -141,7 +141,7 @@ export const getAcceptedVote = createRetryFunction(
       },
     });
   },
-  3
+  5
 );
 
 export const selectRandomTokenWithTemperature = (
@@ -273,5 +273,5 @@ export const acceptVote = createRetryFunction(
       return { newQuestion, counts };
     });
   },
-  3
+  5
 );
