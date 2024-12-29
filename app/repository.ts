@@ -51,7 +51,7 @@ export const getSortedTokensString = createRetryFunction(
 
 export const getQuestionById = createRetryFunction(
   async (questionId: string) => {
-    return await prisma.question.findFirst({
+    return await prisma.question.findUnique({
       where: {
         id: questionId,
       },

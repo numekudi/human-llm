@@ -1,4 +1,4 @@
-import { getQuestionById, prisma } from "~/repository";
+import { getQuestionById } from "~/repository";
 import type { Route } from "./+types/question";
 
 export async function loader({ request, params }: Route.LoaderArgs) {
