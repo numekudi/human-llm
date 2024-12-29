@@ -12,6 +12,7 @@ function createRetryFunction<T, A extends any[]>(
         return await func(...args); // 関数を実行
       } catch (error) {
         attempt++;
+        await new Promise((resolve) => setTimeout(resolve, 5000));
         console.warn(`Attempt ${attempt} failed. Retrying...`, error);
         if (attempt >= retryCount) {
           throw new Error(`Function failed after ${retryCount} attempts`);
@@ -45,7 +46,7 @@ export const getSortedTokensString = createRetryFunction(
 
     return { tokenLength: votes.length, tokensString };
   },
-  5
+  3
 );
 
 export const getQuestionById = createRetryFunction(
@@ -56,7 +57,7 @@ export const getQuestionById = createRetryFunction(
       },
     });
   },
-  5
+  3
 );
 
 export const createQuestion = createRetryFunction(
@@ -72,7 +73,7 @@ export const createQuestion = createRetryFunction(
     });
     return res;
   },
-  5
+  3
 );
 
 export const getQuestions = createRetryFunction(
@@ -92,7 +93,7 @@ export const getQuestions = createRetryFunction(
         questions.length === take ? questions[questions.length - 1].id : null, // 次のカーソル
     };
   },
-  5
+  3
 );
 
 export const createVote = createRetryFunction(
@@ -107,7 +108,7 @@ export const createVote = createRetryFunction(
     });
     return res;
   },
-  5
+  3
 );
 
 export const aggregateVotes = createRetryFunction(
@@ -125,7 +126,7 @@ export const aggregateVotes = createRetryFunction(
 
     return voteCounts;
   },
-  5
+  3
 );
 
 export const getAcceptedVote = createRetryFunction(
@@ -141,7 +142,7 @@ export const getAcceptedVote = createRetryFunction(
       },
     });
   },
-  5
+  3
 );
 
 export const selectRandomTokenWithTemperature = (
@@ -273,5 +274,5 @@ export const acceptVote = createRetryFunction(
       return { newQuestion, counts };
     });
   },
-  5
+  3
 );
