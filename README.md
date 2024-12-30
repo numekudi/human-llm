@@ -1,6 +1,8 @@
 ## 投票で次のトークンが決まる LLM 的な何か
 
-工事中
+Qiitaクソアプリ
+
+https://qiita.com/numekudi/items/cebca8d6804f465fb55a
 
 # Welcome to React Router!
 
