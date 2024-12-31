@@ -24,7 +24,6 @@ export async function action({ request }: Route.ActionArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  console.log(request.url);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
   return await getQuestions(cursor);
