@@ -11,7 +11,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader({ request }: Route.LoaderArgs) {
-  console.log(request.url);
   const url = new URL(request.url);
   const cursor = url.searchParams.get("cursor");
   return await getQuestions(cursor);

@@ -67,6 +67,7 @@ export function Welcome({ questions, questionId, nextCursor }: Props) {
         </div>
         <div className="flex-1">
           <QuestionForm
+            isQuestionLoading={questionFetcher.state === "loading"}
             currentQuestion={questionId ? questionFetcher.data : undefined}
             key={questionFetcher.data?.id}
             questionId={questionId}

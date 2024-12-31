@@ -7,13 +7,18 @@ type Props = {
   currentQuestion?: Question;
   questionId?: string;
   glaphSlot?: React.ReactNode;
+  isQuestionLoading: boolean;
 };
 
-const QuestionForm = ({ currentQuestion, glaphSlot, questionId }: Props) => {
+const QuestionForm = ({
+  currentQuestion,
+  glaphSlot,
+  questionId,
+  isQuestionLoading,
+}: Props) => {
   const [temperature, setTemperature] = useState(
     currentQuestion?.temperature ?? 0.2
   );
-
   const [voted, setVoted] = useState(false);
 
   const [content, setContent] = useState("");
@@ -109,58 +114,60 @@ const QuestionForm = ({ currentQuestion, glaphSlot, questionId }: Props) => {
                   </>
                 )}
               </div>
-              <div className="flex flex-col w-full p-4 items-center">
-                {!currentQuestion?.hasEOS && (
-                  <div
-                    className={
-                      "p-4 flex flex-col items-end border-t bg-white bottom-0 border rounded-lg " +
-                      (currentQuestion ? "w-64" : "w-full")
-                    }
-                  >
-                    <label className="block w-full">
-                      <textarea
-                        name={currentQuestion ? "token" : "content"}
-                        required={!currentQuestion}
-                        maxLength={currentQuestion ? 1 : 1024}
-                        className="mt-1 p-2 block w-full outline-none focus:border-indigo-500 sm:text-sm"
-                        placeholder={
-                          currentQuestion
-                            ? "Enter ASSISTANT token..."
-                            : "Enter USER message... do not enter personal information."
-                        }
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                      />
-                    </label>
-                    <div className="flex justify-between w-full">
-                      <p className="text-gray-500">{`${
-                        (currentQuestion ? 1 : 1024) - content.length
-                      }/${currentQuestion ? 1 : 1024}`}</p>
-                      {currentQuestion && (
+              {!isQuestionLoading && (
+                <div className="flex flex-col w-full p-4 items-center">
+                  {!currentQuestion?.hasEOS && (
+                    <div
+                      className={
+                        "p-4 flex flex-col items-end border-t bg-white bottom-0 border rounded-lg " +
+                        (currentQuestion ? "w-64" : "w-full")
+                      }
+                    >
+                      <label className="block w-full">
+                        <textarea
+                          name={currentQuestion ? "token" : "content"}
+                          required={!currentQuestion}
+                          maxLength={currentQuestion ? 1 : 1024}
+                          className="mt-1 p-2 block w-full outline-none focus:border-indigo-500 sm:text-sm"
+                          placeholder={
+                            currentQuestion
+                              ? "Enter ASSISTANT token..."
+                              : "Enter USER message... do not enter personal information."
+                          }
+                          value={content}
+                          onChange={(e) => setContent(e.target.value)}
+                        />
+                      </label>
+                      <div className="flex justify-between w-full">
+                        <p className="text-gray-500">{`${
+                          (currentQuestion ? 1 : 1024) - content.length
+                        }/${currentQuestion ? 1 : 1024}`}</p>
+                        {currentQuestion && (
+                          <button
+                            type="submit"
+                            className={`mt-2 inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white disabled:bg-gray-200 ${
+                              content ? "bg-gray-200" : "bg-red-400"
+                            }`}
+                            disabled={Boolean(voted || content)}
+                            tabIndex={content ? -1 : undefined}
+                          >
+                            EOS
+                          </button>
+                        )}
                         <button
                           type="submit"
                           className={`mt-2 inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white disabled:bg-gray-200 ${
-                            content ? "bg-gray-200" : "bg-red-400"
-                          }`}
-                          disabled={Boolean(voted || content)}
-                          tabIndex={content ? -1 : undefined}
+                            content ? "bg-indigo-600" : "bg-gray-200"
+                          } ${content && "hover:bg-indigo-700"}`}
+                          disabled={!content || voted}
                         >
-                          EOS
+                          {currentQuestion ? "Vote" : "Run"}
                         </button>
-                      )}
-                      <button
-                        type="submit"
-                        className={`mt-2 inline-flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white disabled:bg-gray-200 ${
-                          content ? "bg-indigo-600" : "bg-gray-200"
-                        } ${content && "hover:bg-indigo-700"}`}
-                        disabled={!content || voted}
-                      >
-                        {currentQuestion ? "Vote" : "Run"}
-                      </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
+              )}
             </div>
             <div className="w-full md:w-64 p-4 border-l right-0 bg-gray-100">
               <div className="mb-6 flex flex-col space-y-4">
